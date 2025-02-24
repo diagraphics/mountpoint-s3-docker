@@ -19,6 +19,8 @@ RUN echo "user_allow_other" >> /etc/fuse.conf
 
 COPY --chmod=555 docker-entrypoint.sh /docker-entrypoint.sh
 
+RUN mkdir -p /var/cache/mount-s3
+
 FROM base AS dev
 
 COPY --from=fetch /tmp/awscli /tmp/awscli
@@ -26,9 +28,27 @@ RUN /tmp/awscli/aws/install \
     && rm -rf /tmp/*
 
 
-FROM base AS prod
+FROM base AS demo
 
-RUN mkdir -p /var/cache/mount-s3
+RUN apt-get update && apt-get install -y \
+    debian-keyring \
+    debian-archive-keyring \
+    apt-transport-https \
+    curl
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | \
+    gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | \
+    tee /etc/apt/sources.list.d/caddy-stable.list
+
+RUN apt-get update && apt-get install -y caddy \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --chmod=555 demo-entrypoint.sh /demo-entrypoint.sh
+ENTRYPOINT [ "/demo-entrypoint.sh" ]
+
+
+FROM base AS prod
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 
