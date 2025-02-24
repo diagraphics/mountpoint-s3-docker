@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  mountpoint-s3:
+    build: .
+    image: ghcr.io/diagraphics/mountpoint-s3:dev
+    privileged: true
+    environment:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_ENDPOINT_URL
+      - AWS_ENDPOINT_URL_S3
+      - AWS_REGION
+      - AWS_S3_FORCE_PATH_STYLE=true
+    command: ["pub", "/mnt/pub"]
