@@ -28,23 +28,26 @@ RUN /tmp/awscli/aws/install \
     && rm -rf /tmp/*
 
 
-FROM base AS demo
+FROM dev AS demo
 
 RUN apt-get update && apt-get install -y \
     debian-keyring \
     debian-archive-keyring \
     apt-transport-https \
     curl
+
 RUN curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | \
     gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
 
 RUN curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | \
     tee /etc/apt/sources.list.d/caddy-stable.list
 
-RUN apt-get update && apt-get install -y caddy \
+RUN apt-get update && apt-get install -y caddy s3fs \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --chmod=555 demo-entrypoint.sh /demo-entrypoint.sh
+COPY dotfiles/config /root/.aws/config
+COPY dotfiles/credentials /root/.aws/credentials
 ENTRYPOINT [ "/demo-entrypoint.sh" ]
 
 

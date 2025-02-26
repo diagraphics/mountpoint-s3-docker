@@ -11,4 +11,7 @@ services:
       - AWS_ENDPOINT_URL_S3
       - AWS_REGION
       - AWS_S3_FORCE_PATH_STYLE=true
+      - MOUNTPOINT_LOG
+      - AWS_EC2_METADATA_DISABLED=true
+      - AWS_SIGV4A_SIGNING_REGION_SET=us-east-1
     command: ["pub", "/mnt/pub"]

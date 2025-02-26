@@ -1,0 +1,12 @@
+diff --git a/src/storage/protocols/s3/signature-v4.ts b/src/storage/protocols/s3/signature-v4.ts
+index 80e668f699f6eaf6738327e1230f4a8171cbc0fc..980621c7485e341e169a44318d2d73a864501665 100644
+--- a/src/storage/protocols/s3/signature-v4.ts
++++ b/src/storage/protocols/s3/signature-v4.ts
+@@ -1,5 +1,5 @@
+-import crypto from 'crypto'
+-import { ERRORS } from '@internal/errors'
++import crypto from 'node:crypto'
++import { ERRORS } from '../../../internal/errors';
+ 
+ interface SignatureV4Options {
+   enforceRegion: boolean
