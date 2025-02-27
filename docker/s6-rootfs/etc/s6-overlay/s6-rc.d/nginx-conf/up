@@ -1,0 +1,6 @@
+# code: language=shellscript
+
+with-contenv
+redirfd -w 1 /etc/nginx/nginx.conf
+redirfd -r 0 /etc/nginx/nginx.conf.template
+envsubst '$AWS_UPSTREAM_HOST'

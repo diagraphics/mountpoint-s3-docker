@@ -5,6 +5,8 @@ import {
   type ClientSignature,
 } from "supa-storage/src/storage/protocols/s3/signature-v4.ts";
 
+import type { SignableRequest } from "./request.ts";
+
 type SignatureRequest = Parameters<SignatureV4["verify"]>[1];
 // type ClientSignatureWithHash = ClientSignature & { contentSha: string };
 
@@ -27,7 +29,7 @@ class RequestSignatureV4 extends SignatureV4 {
     return date.toISOString().replace(/[:-]|\.\d{3}/g, "");
   }
 
-  static async hashBody(request: Request) {
+  static async hashBody(request: SignableRequest) {
     const { body } = request.clone();
 
     if (body == null) {
@@ -44,7 +46,7 @@ class RequestSignatureV4 extends SignatureV4 {
   }
 
   protected async getClientSignature(
-    request: Request,
+    request: SignableRequest,
     date: Date | string,
     includeContentSha256 = false,
     useUnsignedPayload = false
@@ -58,24 +60,28 @@ class RequestSignatureV4 extends SignatureV4 {
 
     const shortDate = self.formatShortDate(longDate);
 
-    const requiredSignedHeaders = [
-      "host",
-      "content-md5",
-      "x-amz-content-sha256",
-      "x-amz-date",
-      "x-amz-security-token",
+    const signedHeaders = [
+      "host",                     // Always required
+      "x-amz-content-sha256",     // To be added
+      "x-amz-date",               // To be added
+      "accept",
+      // "content-length"
     ];
 
-    // TODO extra x-amz-* headers
+    // Push additional headers that are required if they are present
+    for (const header of request.headers.keys()) {
+      if (header.startsWith("x-amz-") || header === "content-type") {
+        signedHeaders.push(header);
+      }
+    }
 
-    const signedHeaders = requiredSignedHeaders
-      .filter((header) => request.headers.has(header))
-      .sort();
+    signedHeaders.sort();
 
     const signature = ""; // Not calculated yet
 
     let contentSha: string | undefined;
 
+    // TODO get hash from existing header if present
     if (includeContentSha256) {
       if (useUnsignedPayload && request.body == undefined) {
         contentSha = "UNSIGNED-PAYLOAD";
@@ -93,7 +99,7 @@ class RequestSignatureV4 extends SignatureV4 {
     };
   }
 
-  protected getSignatureRequest(request: Request): SignatureRequest {
+  protected getSignatureRequest(request: SignableRequest): SignatureRequest & { host: string } {
     const { method, url: rawUrl, body, headers } = request.clone();
 
     const url = new URL(rawUrl);
@@ -101,6 +107,7 @@ class RequestSignatureV4 extends SignatureV4 {
 
     return {
       url: url.pathname,
+      host: url.host,
       method,
       body: body ?? undefined,
       headers: Object.fromEntries(headers.entries()),
@@ -109,12 +116,20 @@ class RequestSignatureV4 extends SignatureV4 {
   }
 
   async signRequest(
-    request: Request,
+    request: SignableRequest,
     date: Date | string,
     useUnsignedPayload = false
   ): Promise<string> {
-    const signatureRequest = this.getSignatureRequest(request);
+    const { host, ...signatureRequest } = this.getSignatureRequest(request);
+
+    console.log("Signature request is", signatureRequest);
     const clientSignature = await this.getClientSignature(request, date, true, useUnsignedPayload);
+
+    const { longDate, contentSha, credentials } = clientSignature;
+
+    signatureRequest.headers["host"] = host;
+    signatureRequest.headers["x-amz-date"] = longDate;
+    signatureRequest.headers["x-amz-content-sha256"] = contentSha!;
 
     const { signature, canonicalRequest } = this.sign(
       clientSignature,
@@ -132,8 +147,8 @@ class RequestSignatureV4 extends SignatureV4 {
       `AWS4-HMAC-SHA256 Credential=${credential}, SignedHeaders=${signedHeaders}, Signature=${signature}`
     );
 
-    request.headers.set("X-Amz-Date", clientSignature.longDate);
-    request.headers.set("X-Amz-Content-Sha256", clientSignature.contentSha!);
+    request.headers.set("X-Amz-Date", longDate);
+    request.headers.set("X-Amz-Content-Sha256", contentSha!);
 
     return canonicalRequest;
   }

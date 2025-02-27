@@ -1,0 +1,6 @@
+# code: language=shellscript
+
+with-contenv
+if { mkdir -p /var/cache/mount-s3 }
+if { mkdir -p /mnt/pub }
+mount-s3 --version

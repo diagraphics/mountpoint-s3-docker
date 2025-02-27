@@ -8,6 +8,10 @@ async function main() {
 
     const request = new Request(url, {
       method: "GET",
+      headers: {
+        "Accept": "application/xml",
+        "Content-Length": "0"
+      }
     });
 
     const canonicalRequest = await signatureV4.signRequest(

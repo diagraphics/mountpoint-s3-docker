@@ -1,0 +1,14 @@
+#!/command/execlineb -P
+
+with-contenv
+importas -i BUCKET MOUNTPOINT_BUCKET
+importas -i DIR MOUNTPOINT_DIR
+mount-s3 \
+    --foreground \
+    --force-path-style \
+    --upload-checksums off \
+    --cache /var/cache/mount-s3 \
+    $BUCKET $DIR
+
+    # --debug \
+    # --debug-crt \
