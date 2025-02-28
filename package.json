@@ -1,9 +1,20 @@
 {
   "name": "@diagraphics/mountpoint-s3-docker",
+  "type": "module",
   "packageManager": "yarn@4.6.0",
+  "bin": {
+    "s3fetch": "./bin/s3fetch.js"
+  },
+  "scripts": {
+    "build": "script/build"
+  },
   "dependencies": {
     "esbuild": "^0.25.0",
+    "njs-types": "^0.8.2",
     "supa-storage": "patch:supa-storage@git@github.com%3Asupabase/storage.git%23commit=c6f577102ea88d063d4412eb862fa69bf41851fc#~/.yarn/patches/supa-storage-git@github.com-6c59818750.patch",
     "typescript": "^5.7.3"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.3"
   }
 }

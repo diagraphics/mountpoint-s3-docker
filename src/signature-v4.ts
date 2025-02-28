@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 import {
   SignatureV4,
   type ClientSignature,
-} from "supa-storage/src/storage/protocols/s3/signature-v4.js";
+} from "supa-storage/src/storage/protocols/s3/signature-v4.ts";
 
 type SignatureRequest = Parameters<SignatureV4["verify"]>[1];
 // type ClientSignatureWithHash = ClientSignature & { contentSha: string };

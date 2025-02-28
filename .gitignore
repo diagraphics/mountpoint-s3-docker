@@ -2,8 +2,8 @@
 .env.*
 .envrc
 
-node_modules
-dist
+node_modules/
+dist/
 
 # https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
 .pnp.*

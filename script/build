@@ -3,7 +3,7 @@
 import * as esbuild from "esbuild";
 
 await esbuild.build({
-  entryPoints: ["src/sign.ts"],
+  entryPoints: ["src/signature-v4.ts"],
   logLevel: "info",
   outdir: "dist",
   bundle: true,
