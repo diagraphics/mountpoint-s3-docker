@@ -8,13 +8,15 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push image
-        run: |
-          docker build . -t ghcr.io/diagraphics/mountpoint-s3:latest
-          docker push ghcr.io/diagraphics/mountpoint-s3:latest
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/diagraphics/mountpoint-s3:latest
