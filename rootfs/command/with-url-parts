@@ -1,0 +1,21 @@
+#!/usr/bin/env execlineb
+
+elgetopt 'p:'
+importas -i url 1
+importas -D URL_ prefix ELGETOPT_p
+shift
+elgetpositionals                    # Required for $@ to be set
+backtick -E parts
+{
+    trurl $url --get "[scheme]\t[host]\t[port]\t[path]\t[query]\t[fragment]"
+}
+multidefine -d "\t" $parts { scheme host port path query fragment }
+export "${prefix}SCHEME"    $scheme
+export "${prefix}HOST"      $host
+export "${prefix}PORT"      $port
+export "${prefix}PATH"      $path
+export "${prefix}QUERY"     $query
+export "${prefix}FRAGMENT"  $fragment
+emptyenv -o                         # Clear elgetopt environment
+emptyenv -c                         # Clear substituted variables
+$@

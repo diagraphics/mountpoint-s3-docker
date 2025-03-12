@@ -1,0 +1,17 @@
+#!/usr/bin/env -S execlineb -s0
+
+with-contenv
+importas -i -u url AWS_ENDPOINT_URL
+with-url-parts -p AWS_UPSTREAM_ $url
+backtick AWS_ENDPOINT_URL           # Redefine AWS_ENDPOINT_URL
+{                                   # to point to local proxy
+    trurl $url \
+        --set scheme=http \
+        --set host=localhost \
+        --set port=54321
+}
+# export AWS_EC2_METADATA_DISABLED 1  # Disable EC2 metadata service
+# export AWS_SHARED_CREDENTIALS_FILE "/dev/null"
+# export AWS_CONFIG_FILE "/dev/null"
+emptyenv -c                         # Clear substituted variables
+$@

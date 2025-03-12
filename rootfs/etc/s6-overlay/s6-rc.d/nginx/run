@@ -1,0 +1,5 @@
+#!/command/execlineb -P
+
+with-s3-env
+s6-notifyoncheck -n 0 -c "nc -z localhost 54321"
+nginx -g "daemon off;"

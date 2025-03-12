@@ -12,13 +12,16 @@ import crypto from "crypto";
 
 ngx.log(ngx.INFO, "Loading AWS Signature v4 NJS script");
 
+const hostName = process.env.AWS_UPSTREAM_HOST;
+const port = process.env.AWS_UPSTREAM_PORT;
+
 // Configuration from environment variables
 var config = {
   region: process.env.AWS_REGION || "us-east-1",
   service: process.env.AWS_SERVICE || "s3",
   accessKey: process.env.AWS_ACCESS_KEY_ID,
   secretKey: process.env.AWS_SECRET_ACCESS_KEY,
-  upstreamHost: process.env.AWS_UPSTREAM_HOST,
+  upstreamHost: hostName + ':' + port,
 };
 
 ngx.log(ngx.INFO, "Using upstream host: " + config.upstreamHost);

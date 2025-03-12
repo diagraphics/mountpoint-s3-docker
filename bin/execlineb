@@ -1,0 +1,4 @@
+#!/usr/bin/env -S yarn exec bash
+
+export PATH=$PATH:$PROJECT_CWD/rootfs/command
+exec execlineb "$@"

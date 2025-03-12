@@ -1,6 +1,6 @@
 #!/command/execlineb -P
 
-with-contenv
+with-s3-env
 importas -i BUCKET MOUNTPOINT_BUCKET
 importas -i DIR MOUNTPOINT_DIR
 s6-notifyoncheck -n 0 -c "mountpoint -q ${DIR}"
