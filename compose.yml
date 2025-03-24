@@ -13,4 +13,6 @@ services:
       - AWS_REGION
       - MOUNTPOINT_BUCKET
       - MOUNTPOINT_DIR
+      - MOUNTPOINT_BUCKET_1
+      - MOUNTPOINT_DIR_1
       - MOUNTPOINT_LOG

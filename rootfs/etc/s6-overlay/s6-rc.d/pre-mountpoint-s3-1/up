@@ -1,7 +1,7 @@
 # code: language=shellscript
 
 with-s3-env
-importas -i DIR MOUNTPOINT_DIR
-if { mkdir -p /var/cache/mount-s3 }
+importas -i DIR MOUNTPOINT_DIR_1
+if { mkdir -p /var/cache/mount-s3-1 }
 if { mkdir -p "${DIR}" }
 mount-s3 --version
