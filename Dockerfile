@@ -93,6 +93,9 @@ COPY --from=s6-overlay / /
 COPY --from=builder /build/trurl /command/trurl
 COPY ./rootfs/ /
 
+ENV S6_STAGE2_HOOK=/etc/s6-overlay/stage2_hook.sh \
+    S6_BEHAVIOUR_IF_STAGE2_FAILS=2
+
 ENTRYPOINT [ "/init" ]
 
 

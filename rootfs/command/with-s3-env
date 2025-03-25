@@ -1,4 +1,4 @@
-#!/usr/bin/env -S execlineb -s0
+#!/command/execlineb -s0
 
 with-contenv
 importas -i -u url AWS_ENDPOINT_URL
