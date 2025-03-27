@@ -12,8 +12,9 @@ import crypto from "crypto";
 
 ngx.log(ngx.INFO, "Loading AWS Signature v4 NJS script");
 
-const hostName = process.env.AWS_UPSTREAM_HOST;
-const port = process.env.AWS_UPSTREAM_PORT;
+const upstreamScheme = process.env.AWS_UPSTREAM_SCHEME;
+const upstreamHost = process.env.AWS_UPSTREAM_HOST;
+const upstreamPort = process.env.AWS_UPSTREAM_PORT;
 
 // Configuration from environment variables
 var config = {
@@ -21,7 +22,9 @@ var config = {
   service: process.env.AWS_SERVICE || "s3",
   accessKey: process.env.AWS_ACCESS_KEY_ID,
   secretKey: process.env.AWS_SECRET_ACCESS_KEY,
-  upstreamHost: hostName + ':' + port,
+  // Port cannot be included in Host header for signing when connecting to a production instance
+  // Suspect Cloudflare normalizes the Host header to remove the port
+  upstreamHost: upstreamScheme === "https" ? upstreamHost : upstreamHost + ":" + upstreamPort,
 };
 
 ngx.log(ngx.INFO, "Using upstream host: " + config.upstreamHost);
@@ -321,20 +324,4 @@ function generateNewAuthHeader(r) {
   }
 }
 
-/**
- * @param {NginxHTTPRequest} r
- */
-function getUpstreamHost(r) {
-  r.log("Using upstream host: " + config.upstreamHost);
-  return config.upstreamHost;
-}
-
-/**
- * @param {NginxHTTPRequest} r
- */
-function getUpstreamUrl(r) {
-  r.log("Using upstream host: " + config.upstreamHost);
-  return "https://" + config.upstreamHost;
-}
-
-export default { generateNewAuthHeader, getUpstreamHost, getUpstreamUrl };
+export default { generateNewAuthHeader };

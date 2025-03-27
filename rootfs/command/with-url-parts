@@ -7,7 +7,7 @@ shift
 elgetpositionals                    # Required for $@ to be set
 backtick -E parts
 {
-    trurl $url --get "[scheme]\t[host]\t[port]\t[path]\t[query]\t[fragment]"
+    trurl $url --get "[scheme]\t[host]\t[default:port]\t[path]\t[query]\t[fragment]"
 }
 multidefine -d "\t" $parts { scheme host port path query fragment }
 export "${prefix}SCHEME"    $scheme
