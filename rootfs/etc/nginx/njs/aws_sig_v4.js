@@ -227,7 +227,7 @@ function generateNewAuthHeader(r) {
 
     // Get request attributes
     var method = r.method;
-    var url = r.uri;
+    var url = encodeURI(r.uri);
     var queryString = "";
 
     if (r.args) {
