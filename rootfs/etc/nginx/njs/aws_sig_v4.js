@@ -270,6 +270,7 @@ function generateNewAuthHeader(r) {
     var canonicalHeadersStr = "";
     for (var i = 0; i < newSignedHeaders.length; i++) {
       var headerName = newSignedHeaders[i].toLowerCase();
+      // @ts-ignore
       var headerValue = headers[headerName] ? headers[headerName].trim() : "";
       canonicalHeadersStr += headerName + ":" + headerValue + "\n";
     }
