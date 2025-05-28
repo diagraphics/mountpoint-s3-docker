@@ -5,7 +5,7 @@
 FROM curlimages/curl AS fetch
 
 RUN mkdir -p /tmp/mountpoint-s3 && \
-    curl -SL https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.deb \
+    curl -SL https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.deb?v=1 \
     -o /tmp/mountpoint-s3/mount-s3.deb
 
 RUN mkdir -p /tmp/awscli &&     \
