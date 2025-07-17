@@ -13,9 +13,9 @@ copy_source() {
     local source="${TEMPLATE_ROOT}/${service}"
     local target="${SERVICE_ROOT}/${service}-${suffix}"
 
-    cp -R $source $target > /dev/null 2>&1
+    cp -R "${source}" "${target}" > /dev/null 2>&1
 
-    echo $target
+    echo "{$target}"
 }
 
 add_to_bundle() {
@@ -23,7 +23,7 @@ add_to_bundle() {
     local service="$2"
     local workdir="${SERVICE_ROOT}/${bundle}/contents.d"
 
-    mkdir -p $workdir
+    mkdir -p "${workdir}"
     touch "${workdir}/${service}"
 }
 
@@ -39,7 +39,8 @@ make_env() {
 make_instance() {
     local service="$1"
     local bucket="$2"
-    local workdir="$(copy_source "${service}" "${bucket}")"
+    local workdir
+    workdir="$(copy_source "${service}" "${bucket}")"
 
     make_env "${workdir}" "${bucket}" > /dev/null 2>&1
     add_to_bundle mountpoint-s3 "mountpoint-s3-${bucket}"
