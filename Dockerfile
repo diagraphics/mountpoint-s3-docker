@@ -93,8 +93,14 @@ COPY --from=s6-overlay / /
 COPY --from=builder /build/trurl /command/trurl
 COPY ./rootfs/ /
 
+# Create a service for each bucket that is to be mounted,
+# and fail fast if an error occurs.
 ENV S6_STAGE2_HOOK=/etc/s6-overlay/stage2_hook.sh \
     S6_BEHAVIOUR_IF_STAGE2_FAILS=2
+
+# Since we are using a fuse filesystem, attempt to ensure that
+# file data is flushed before the container exits.
+ENV S6_SYNC_DISKS=1
 
 ENTRYPOINT [ "/init" ]
 

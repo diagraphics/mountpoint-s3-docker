@@ -1,4 +1,5 @@
 #!/command/execlineb -s0
+# shellcheck disable=all
 
 with-contenv
 importas -i -u url AWS_ENDPOINT_URL
