@@ -15,7 +15,7 @@ copy_source() {
 
     cp -R "${source}" "${target}" > /dev/null 2>&1
 
-    echo "{$target}"
+    echo "${target}"
 }
 
 add_to_bundle() {

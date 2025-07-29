@@ -1,4 +1,5 @@
 #!/command/execlineb -P
+# shellcheck disable=all
 
 with-s3-env
 getcwd -E cwd
