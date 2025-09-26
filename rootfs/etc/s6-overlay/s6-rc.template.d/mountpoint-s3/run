@@ -6,10 +6,11 @@ getcwd -E cwd
 s6-envdir "${cwd}/env"
 importas -i BUCKET MOUNTPOINT_BUCKET
 importas -i DIR MOUNTPOINT_DIR
+importas -s ARGS MOUNTPOINT_ARGS
 s6-notifyoncheck -n 0 -c "mountpoint -q ${DIR}"
 mount-s3 \
     --foreground \
     --force-path-style \
     --upload-checksums off \
     --cache "/var/cache/mount-s3/${BUCKET}" \
-    $BUCKET $DIR
+    $ARGS $BUCKET $DIR
