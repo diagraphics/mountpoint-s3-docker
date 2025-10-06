@@ -1,4 +1,5 @@
 #!/usr/bin/env execlineb
+# shellcheck disable=all
 
 elgetopt 'p:'
 importas -i url 1
