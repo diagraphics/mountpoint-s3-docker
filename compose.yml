@@ -14,3 +14,4 @@ services:
       - MOUNTPOINT_PREFIX
       - MOUNTPOINT_LOG
       - MOUNTPOINT_ARGS
+      - MOUNTPOINT_USE_PROXY

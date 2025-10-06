@@ -43,6 +43,12 @@ make_instance() {
     workdir="$(copy_source "${service}" "${bucket}")"
 
     make_env "${workdir}" "${bucket}" > /dev/null 2>&1
+
+    if [ "${MOUNTPOINT_USE_PROXY:-1}" = 1 ]; then
+        mkdir -p "${workdir}/dependencies.d"
+        touch "${workdir}/dependencies.d/nginx"
+    fi
+
     add_to_bundle mountpoint-s3 "mountpoint-s3-${bucket}"
     mkdir -p "${MOUNTPOINT_PREFIX}/${bucket}"
     mkdir -p "/var/cache/mount-s3/${bucket}"
