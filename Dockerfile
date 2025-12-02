@@ -4,12 +4,16 @@
 
 FROM curlimages/curl AS fetch
 
-RUN mkdir -p /tmp/mountpoint-s3 && \
-    curl -SL https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.deb?v=1 \
-    -o /tmp/mountpoint-s3/mount-s3.deb
+ARG TARGETARCH
 
-RUN mkdir -p /tmp/awscli &&     \
-    curl -SL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscli/awscliv2.zip && \
+COPY ./targetarch /targetarch
+
+RUN mkdir -p /tmp/mountpoint-s3 && \
+    curl -SL "https://s3.amazonaws.com/mountpoint-s3-release/latest/$(/targetarch -x arm64)/mount-s3.deb" \
+        -o /tmp/mountpoint-s3/mount-s3.deb
+
+RUN mkdir -p /tmp/awscli && \
+    curl -SL "https://awscli.amazonaws.com/awscli-exe-linux-$(/targetarch).zip" -o /tmp/awscli/awscliv2.zip &&\
     unzip /tmp/awscli/awscliv2.zip -d /tmp/awscli
 
 RUN mkdir -p /tmp/trurl && \
