@@ -6,6 +6,7 @@ set -euo pipefail
 TEMPLATE_ROOT="/etc/s6-overlay/s6-rc.template.d"
 SERVICE_ROOT="/etc/s6-overlay/s6-rc.d"
 MOUNTPOINT_PREFIX="${MOUNTPOINT_PREFIX:-/mnt}"
+MOUNTPOINT_CACHE_DIR="${MOUNTPOINT_CACHE_DIR:-/var/cache/mount-s3}"
 
 copy_source() {
     local service="$1"
@@ -40,18 +41,14 @@ make_instance() {
     local service="$1"
     local bucket="$2"
     local workdir
+
     workdir="$(copy_source "${service}" "${bucket}")"
 
     make_env "${workdir}" "${bucket}" > /dev/null 2>&1
 
-    if [ "${MOUNTPOINT_USE_PROXY:-1}" = 1 ]; then
-        mkdir -p "${workdir}/dependencies.d"
-        touch "${workdir}/dependencies.d/nginx"
-    fi
-
     add_to_bundle mountpoint-s3 "mountpoint-s3-${bucket}"
     mkdir -p "${MOUNTPOINT_PREFIX}/${bucket}"
-    mkdir -p "/var/cache/mount-s3/${bucket}"
+    mkdir -p "${MOUNTPOINT_CACHE_DIR}/${bucket}"
 }
 
 main() {

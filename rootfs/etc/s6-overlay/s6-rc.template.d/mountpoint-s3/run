@@ -1,7 +1,7 @@
 #!/command/execlineb -P
 # shellcheck disable=all
 
-with-s3-env
+with-contenv
 getcwd -E cwd
 s6-envdir "${cwd}/env"
 multisubstitute {
