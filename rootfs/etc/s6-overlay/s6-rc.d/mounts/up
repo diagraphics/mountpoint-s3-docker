@@ -1,0 +1,17 @@
+with-contenv
+importas -i -s -d "," buckets MOUNTPOINT_BUCKETS
+importas -i prefix MOUNTPOINT_PREFIX
+
+forx -E -p -o 0 bucket { $buckets }
+    ifelse
+    {
+        mountpoint -q "${prefix}/${bucket}"
+    }
+    {
+        if
+        {
+            umount "${prefix}/${bucket}"
+        }
+        cont-halt 1
+    }
+    true
