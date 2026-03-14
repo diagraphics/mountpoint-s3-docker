@@ -1,18 +1,103 @@
 services:
+  localstack:
+    image: localstack/localstack:latest
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+    ports:
+      - "4566:4566"
+    volumes:
+      - localstack-data:/var/lib/localstack
+    healthcheck:
+      test: ["CMD", "awslocal", "s3", "ls"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  init-buckets:
+    image: amazon/aws-cli:latest
+    depends_on:
+      localstack:
+        condition: service_healthy
+    environment:
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
+    entrypoint: >
+      sh -c "
+        aws --endpoint-url=http://localstack:4566 s3 mb s3://test-bucket || true;
+        aws --endpoint-url=http://localstack:4566 s3 mb s3://data-bucket || true;
+        aws --endpoint-url=http://localstack:4566 s3 mb s3://backup-bucket || true;
+        echo 'All buckets created'
+      "
+
   mountpoint-s3:
     build: .
     image: ghcr.io/diagraphics/mountpoint-s3:dev
     privileged: true
     ports:
       - "8080:80"
+    depends_on:
+      localstack:
+        condition: service_healthy
+      init-buckets:
+        condition: service_completed_successfully
     environment:
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
-      - AWS_ENDPOINT_URL
-      - AWS_REGION
-      - MOUNTPOINT_BUCKETS
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - MOUNTPOINT_BUCKETS=test-bucket,data-bucket,backup-bucket
       - MOUNTPOINT_PREFIX
-      - MOUNTPOINT_LOG
-      - MOUNTPOINT_ARGS
-      - MOUNTPOINT_USE_PROXY
+      - MOUNTPOINT_LOG=debug
+      - MOUNTPOINT_ARGS=--allow-delete --endpoint-url http://localstack:4566 --region us-east-1
       - MOUNTPOINT_CACHE_DIR
+    healthcheck:
+      test: ["CMD", "mountpoint", "-q", "/mnt/test-bucket"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  test-runner:
+    profiles: ["test"]
+    image: ghcr.io/diagraphics/mountpoint-s3:dev
+    depends_on:
+      mountpoint-s3:
+        condition: service_healthy
+    volumes:
+      - ./tests:/tests:ro
+    environment:
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_REGION=us-east-1
+    entrypoint: ["bash", "/tests/run-all-tests.sh"]
+    network_mode: "service:mountpoint-s3"
+    pid: "service:mountpoint-s3"
+
+  test-single-bucket:
+    profiles: ["test-single"]
+    image: ghcr.io/diagraphics/mountpoint-s3:dev
+    depends_on:
+      mountpoint-s3:
+        condition: service_healthy
+    volumes:
+      - ./tests:/tests:ro
+    entrypoint: ["bash", "/tests/test-s3-mount.sh"]
+    network_mode: "service:mountpoint-s3"
+    pid: "service:mountpoint-s3"
+
+  test-multi-bucket:
+    profiles: ["test-multi"]
+    image: ghcr.io/diagraphics/mountpoint-s3:dev
+    depends_on:
+      mountpoint-s3:
+        condition: service_healthy
+    volumes:
+      - ./tests:/tests:ro
+    entrypoint: ["bash", "/tests/test-multi-bucket.sh"]
+    network_mode: "service:mountpoint-s3"
+    pid: "service:mountpoint-s3"
+
+volumes:
+  localstack-data:
